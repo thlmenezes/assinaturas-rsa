@@ -1,4 +1,20 @@
 import random, math, utilidade
+from dataclasses import dataclass
+
+DEFAULT_EXPONENT = 65537
+
+@dataclass
+class PublicKey:
+    n: int
+    e: int = DEFAULT_EXPONENT
+
+@dataclass
+class PrivateKey:
+    n: int
+    d: int
+    p: int
+    q: int
+    e: int = DEFAULT_EXPONENT
 
 def gerarChaves(tamanho:int = 1024):
     # Gera p e q, caso nescessário
@@ -19,9 +35,14 @@ def gerarChaves(tamanho:int = 1024):
     while math.gcd(public_key,euler) != 1 or pow(public_key,-1, euler) == public_key:
         public_key = random.randrange(1,euler-1)
     private_key = pow(public_key,-1, euler)
-    #private_key = utilidade.invM2(public_key, euler)          #Outra opção para o inverso multiplicativo modular
-    print(public_key*private_key%euler)
-    return public_key, private_key, n
+    # private_key = utilidade.invM2(public_key, euler)          #Outra opção para o inverso multiplicativo modular
+    # print(public_key*private_key%euler)
+    return public_key, private_key, n, PublicKey(n), PrivateKey(
+        n,
+        pow(DEFAULT_EXPONENT,-1,euler),
+        p,
+        q,
+    )
 
 def encrypt(e, n, message):
     cipher = ''
