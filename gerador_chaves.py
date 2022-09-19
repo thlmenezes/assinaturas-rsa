@@ -1,12 +1,12 @@
 """Gerador de Chaves RSA
 
 TODO: remover dependência com RSA
-TODO: usar hashlib.sha3 para assinatura e verificação
 TODO: como converter int <-> DER|PEM?
 TODO: como gerar números primos de 1024 bits?
 """
 
 import rsa
+import validador
 
 def gera_chaves(
     pasta: [str] = ['keys'],
@@ -44,15 +44,6 @@ def decripta(criptograma: bytes, chave_priv: rsa.PrivateKey):
     except DecryptionError:
         return False
 
-def assina_sha1(mensagem: str, chave_priv: rsa.PrivateKey) -> bytes:
-    return rsa.sign(mensagem.encode('ascii'), chave_priv, 'SHA-1')
-
-def verifica_sha1(mensagem: str, assinatura: bytes, chave_pub: rsa.PublicKey) -> bool:
-    try:
-        return rsa.verify(mensagem.encode('ascii'), assinatura, chave_pub) == 'SHA-1'
-    except VerificationError:
-        return False
-
 if __name__ == '__main__':
     gera_chaves(
         chave_pub='chaveAlinePub',
@@ -84,7 +75,7 @@ if __name__ == '__main__':
     mensagem = input('mensagem para criptografar: ')    
     criptograma = encripta(mensagem, mariana_chave_pub)
 
-    assinatura = assina_sha1(mensagem, aline_chave_priv)
+    assinatura = validador.assina(mensagem, aline_chave_priv)
 
     texto_limpo = decripta(criptograma, mariana_chave_priv)
 
@@ -95,7 +86,7 @@ if __name__ == '__main__':
     else:
         print('Não foi possível decodificar')
 
-    if verifica_sha1(texto_limpo, assinatura, aline_chave_pub):
+    if validador.verifica(texto_limpo, assinatura, aline_chave_pub):
         print('Assinatura verificada')
     else:
         print('Não foi possível verificar a assinatura')
